@@ -1,8 +1,11 @@
-require('dotenv').config();
 var express = require('express');
+var bodyParser = require('body-parser');
 var path = require('path');
 var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
+var pug = require('pug');
+require('dotenv').config();
+
+
 
 //Connect with mongodb
 mongoose.connect('mongodb://localhost/nodekb');
@@ -35,6 +38,7 @@ app.set('view engine','pug');
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
+
 
 //home router
 app.get('/', (req, res) => {
