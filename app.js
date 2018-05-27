@@ -2,6 +2,7 @@ require('dotenv').config();
 var express = require('express');
 var path = require('path');
 var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
 
 //Connect with mongodb
 mongoose.connect('mongodb://localhost/nodekb');
@@ -26,6 +27,14 @@ let Article = require('./models/article');
 //load view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine','pug');
+
+
+
+//Body parser middleware
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+app.use(bodyParser.json());
 
 //home router
 app.get('/', (req, res) => {
@@ -66,7 +75,27 @@ app.get('/', (req, res) => {
 //Add route
 app.get('/articles/add', (req, res) => {
 	res.render('add_article', {
-		title:'Add Articles'
-	})
-})
+		title:'Add Article'
+	});
+});
+
+//Add Submit Post Route
+app.post('/articles/add', (req, res) => {
+	// console.log('Submitted');
+	// return;
+	 let article = new Article();
+	 article.title = req.body.title;
+	 article.author = req.body.author;
+	 article.body = req.body.body;
+	// console.log(req.body.title);
+	// return 
+	article.save(err => {
+		if(err){
+			console.log(err);
+			return;
+		}else {
+			res.redirect('/');
+		}
+	});
+});
 app.listen(process.env.PORT, () => console.log('Example app listening on port 3000!'))
