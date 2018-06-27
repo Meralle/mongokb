@@ -63,10 +63,6 @@ app.post('/send', (req, rea) => {
 		host: 'smtp.gmail.com',
 		post: 560,
 		secure: false,
-		// auth:{
-		// 	user:'sash.samson@gmail.com',
-		// 	pass:'05112016Cm'
-		// }
 		auth: {
 			user:process.env.MAILER_MAIL,
 			pass: process.env.MAILER_PW
@@ -75,6 +71,7 @@ app.post('/send', (req, rea) => {
 
 	let mailOptions = {
 		from: '"meralle" <mar.ha17@outlook.com>',
+		name:req.body.name,
 		to: req.body.email,
 		subject:req.body.subject,
 		text:req.body.message
