@@ -1,0 +1,16 @@
+extends layout
+block content
+  body.text-center
+    form.form-signin(method='POST', action='/send')
+      img.mb-4(src='https://ih1.redbubble.net/image.109336634.1604/flat,550x550,075,f.u1.jpg', alt='', width='72', height='72')
+      h1.h3.mb-3.font-weight-normal Register
+      label.sr-only(for='inputEmail') Email address
+      input#inputEmail.form-control(name='email', type='text', placeholder='Email address', required='', autofocus='')
+      label.sr-only(for='inputPassword') subject
+      input#inputPassword.form-control(name='subject', type='subject', placeholder='subject', required='')
+      .checkbox.mb-3
+        label
+          input(type='checkbox', value='true', name='staysignedin')
+          |  Remember me
+      button.btn.btn-lg.btn-success.btn-block(type='submit') send
+      p.mt-5.mb-3.text-muted © 2017-2018

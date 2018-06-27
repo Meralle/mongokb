@@ -4,6 +4,7 @@ var path = require('path');
 var mongoose = require('mongoose');
 var pug = require('pug');
 require('dotenv').config();
+var nodeMailer = require('nodemailer');
 
 
 
@@ -39,6 +40,56 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
+
+//set public folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+var port = 3000;
+// app.get('/', (req, res) => {
+// 	res.render('index');
+// }
+
+
+app.get('/contact', (req,res) => {
+	res.render('contact')
+});
+
+app.post('/send', (req, rea) => {
+	let transporter = nodeMailer.createTransport({
+		host: 'smtp.gmail.com',
+		post: 560,
+		secure: false,
+		// auth:{
+		// 	user:'sash.samson@gmail.com',
+		// 	pass:'05112016Cm'
+		// }
+		auth: {
+			user:process.env.MAILER_MAIL,
+			pass: process.env.MAILER_PW
+		}
+	});
+
+	let mailOptions = {
+		from: '"meralle" <mar.ha17@outlook.com>',
+		to: req.body.email,
+		subject:req.body.subject,
+		text:req.body.message
+	};
+
+	transporter.sendMail(mailOptions, (error, info) =>{
+		if (error) {
+			return console.log(error);
+		}
+		console.log('Message %s sent: %s , info.messageId, info.response');
+		res.render('index');
+	});
+});
+
+		
 
 //home router
 app.get('/', (req, res) => {
