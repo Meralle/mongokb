@@ -49,11 +49,9 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 var port = 3000;
-// app.get('/', (req, res) => {
-// 	res.render('index');
-// }
 
 
+//contact send email part
 app.get('/contact', (req,res) => {
 	res.render('contact')
 });
@@ -124,6 +122,15 @@ app.get('/', (req, res) => {
 	
 });
 
+//get single article
+app.get('/article/:id', (req,res) => {
+	Article.findById(req.params.id,(err, article) => {
+		res.render('article', {
+		article:article
+		});
+	});
+});
+
 //Add route
 app.get('/articles/add', (req, res) => {
 	res.render('add_article', {
@@ -148,6 +155,46 @@ app.post('/articles/add', (req, res) => {
 		}else {
 			res.redirect('/');
 		}
+	});
+});
+
+//load Edit form
+app.get('/article/edit/:id', (req,res) => {
+	Article.findById(req.params.id,(err, article) => {
+		res.render('edit_article', {
+		title: 'Edit Article',
+		article:article
+		});
+	});
+});
+
+
+//update Submit Post Route
+app.post('/articles/edit/:id', (req, res) => {
+	let article = {};
+	article.title = req.body.title;
+	article.author = req.body.author;
+	article.body = req.body.body;
+
+	let query = {_id:req.params.id}
+	
+	Article.update(query, article, (err) => {
+		if(err){
+			console.log(err);
+			return;
+		}else {
+			res.redirect('/');
+		}
+	});
+});
+
+app.delete('/article/:id', (req, res) => {
+	let query = {_id:req.params.id}
+	Article.remove(query, (err) => {
+		if(err){
+			console.log(err);
+		}
+		res.send('Success');
 	});
 });
 app.listen(process.env.PORT, () => console.log('Example app listening on port 3000!'))
