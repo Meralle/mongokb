@@ -52,37 +52,37 @@ var port = 3000;
 
 
 //contact send email part
-app.get('/contact', (req,res) => {
-	res.render('contact')
-});
+// app.get('/contact', (req,res) => {
+// 	res.render('contact')
+// });
 
-app.post('/send', (req, rea) => {
-	let transporter = nodeMailer.createTransport({
-		host: 'smtp.gmail.com',
-		post: 560,
-		secure: false,
-		auth: {
-			user:process.env.MAILER_MAIL,
-			pass: process.env.MAILER_PW
-		}
-	});
+// app.post('/send', (req, rea) => {
+// 	let transporter = nodeMailer.createTransport({
+// 		host: 'smtp.gmail.com',
+// 		post: 560,
+// 		secure: false,
+// 		auth: {
+// 			user:process.env.MAILER_MAIL,
+// 			pass: process.env.MAILER_PW
+// 		}
+// 	});
 
-	let mailOptions = {
-		from: '"meralle" <mar.ha17@outlook.com>',
-		name:req.body.name,
-		to: req.body.email,
-		subject:req.body.subject,
-		text:req.body.message
-	};
+// 	let mailOptions = {
+// 		from: '"meralle" <mar.ha17@outlook.com>',
+// 		name:req.body.name,
+// 		to: req.body.email,
+// 		subject:req.body.subject,
+// 		text:req.body.message
+// 	};
 
-	transporter.sendMail(mailOptions, (error, info) =>{
-		if (error) {
-			return console.log(error);
-		}
-		console.log('Message %s sent: %s , info.messageId, info.response');
-		res.render('index');
-	});
-});
+// 	transporter.sendMail(mailOptions, (error, info) =>{
+// 		if (error) {
+// 			return console.log(error);
+// 		}
+// 		console.log('Message %s sent: %s , info.messageId, info.response');
+// 		res.render('index');
+// 	});
+// });
 
 		
 
