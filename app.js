@@ -5,6 +5,9 @@ var mongoose = require('mongoose');
 var pug = require('pug');
 require('dotenv').config();
 var nodeMailer = require('nodemailer');
+var expressValidator = require('express-validator');
+var flash = require ('connect-flash');
+var session = require('express-session');
 
 
 
@@ -45,44 +48,79 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+//Express Section Middleware
+app.use(session({
+  secret: 'keyboard cat',
+  resave: true,
+  saveUninitialized: true
+}));
+
+
+//Express Messages Middleware
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+//Express Validator Middleware
+app.use(expressValidator({
+	errorFormatter: (param, msg, value) => {
+		var namespace = param.split('.')
+		, root  = namespace.shift()
+		, formParam = root;
+
+
+	while(namespace.length){
+		formParam += '[' + namespace.shift() + ']';
+	}
+
+	return {
+		param :formParam,
+		msg : msg,
+		value : value
+
+		};
+	}
+}));
+
+//contact send email part
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 var port = 3000;
 
+app.get('/contact', (req,res) => {
+	res.render('contact')
+});
 
-//contact send email part
-// app.get('/contact', (req,res) => {
-// 	res.render('contact')
-// });
+app.post('/send', (req, rea) => {
+	let transporter = nodeMailer.createTransport({
+		host: 'smtp.gmail.com',
+		post: 560,
+		secure: false,
+		auth: {
+			user:process.env.MAILER_MAIL,
+			pass: process.env.MAILER_PW
+		}
+	});
 
-// app.post('/send', (req, rea) => {
-// 	let transporter = nodeMailer.createTransport({
-// 		host: 'smtp.gmail.com',
-// 		post: 560,
-// 		secure: false,
-// 		auth: {
-// 			user:process.env.MAILER_MAIL,
-// 			pass: process.env.MAILER_PW
-// 		}
-// 	});
+	let mailOptions = {
+		from: '"meralle" <mar.ha17@outlook.com>',
+		name:req.body.name,
+		to: req.body.email,
+		subject:req.body.subject,
+		text:req.body.message
+	};
 
-// 	let mailOptions = {
-// 		from: '"meralle" <mar.ha17@outlook.com>',
-// 		name:req.body.name,
-// 		to: req.body.email,
-// 		subject:req.body.subject,
-// 		text:req.body.message
-// 	};
-
-// 	transporter.sendMail(mailOptions, (error, info) =>{
-// 		if (error) {
-// 			return console.log(error);
-// 		}
-// 		console.log('Message %s sent: %s , info.messageId, info.response');
-// 		res.render('index');
-// 	});
-// });
+	transporter.sendMail(mailOptions, (error, info) =>{
+		if (error) {
+			return console.log(error);
+		}
+		console.log('Message %s sent: %s , info.messageId, info.response');
+		res.render('index');
+	});
+});
 
 		
 
@@ -122,79 +160,9 @@ app.get('/', (req, res) => {
 	
 });
 
-//get single article
-app.get('/article/:id', (req,res) => {
-	Article.findById(req.params.id,(err, article) => {
-		res.render('article', {
-		article:article
-		});
-	});
-});
+//Route Files
+let articles = require('./routes/articles');
+app.use('/articles', articles);
 
-//Add route
-app.get('/articles/add', (req, res) => {
-	res.render('add_article', {
-		title:'Add Article'
-	});
-});
-
-//Add Submit Post Route
-app.post('/articles/add', (req, res) => {
-	// console.log('Submitted');
-	// return;
-	 let article = new Article();
-	 article.title = req.body.title;
-	 article.author = req.body.author;
-	 article.body = req.body.body;
-	// console.log(req.body.title);
-	// return 
-	article.save(err => {
-		if(err){
-			console.log(err);
-			return;
-		}else {
-			res.redirect('/');
-		}
-	});
-});
-
-//load Edit form
-app.get('/article/edit/:id', (req,res) => {
-	Article.findById(req.params.id,(err, article) => {
-		res.render('edit_article', {
-		title: 'Edit Article',
-		article:article
-		});
-	});
-});
-
-
-//update Submit Post Route
-app.post('/articles/edit/:id', (req, res) => {
-	let article = {};
-	article.title = req.body.title;
-	article.author = req.body.author;
-	article.body = req.body.body;
-
-	let query = {_id:req.params.id}
-	
-	Article.update(query, article, (err) => {
-		if(err){
-			console.log(err);
-			return;
-		}else {
-			res.redirect('/');
-		}
-	});
-});
-
-app.delete('/article/:id', (req, res) => {
-	let query = {_id:req.params.id}
-	Article.remove(query, (err) => {
-		if(err){
-			console.log(err);
-		}
-		res.send('Success');
-	});
-});
+//start server
 app.listen(process.env.PORT, () => console.log('Example app listening on port 3000!'))

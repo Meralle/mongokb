@@ -1,25 +1,25 @@
-//- extends layout
-//- block content
-//-   body
-//-       .containe
-//-             form(method='POST', action='/send')
-//-                   label Name: 
-//-                   br
-//-                   input(type='text', name='name', placeolder='Name', for='name').form-control
-//-                   br
-//-                   label Email: 
-//-                   br
-//-                   input(type='text', name='email', placeolder='Email Address', for='email').form-control
-//-                   br
-//-                   label Subject: 
-//-                   br
-//-                   input(type='text', name='subject', placeolder='Subject', for='subject').form-control
-//-                   br
-//-                   label Message: 
-//-                   br
-//-                   textarea(name='message', for='message' placeholder="Message").form-control 
-//-                   br
-//-                   input(type='submit', name='submit', value='Submit').btn.btn-success
+extends layout
+block content
+  body
+      .containe
+            form(method='POST', action='/send')
+                  label Name: 
+                  br
+                  input(type='text', name='name', placeolder='Name', for='name').form-control
+                  br
+                  label Email: 
+                  br
+                  input(type='text', name='email', placeolder='Email Address', for='email').form-control
+                  br
+                  label Subject: 
+                  br
+                  input(type='text', name='subject', placeolder='Subject', for='subject').form-control
+                  br
+                  label Message: 
+                  br
+                  textarea(name='message', for='message' placeholder="Message").form-control 
+                  br
+                  input(type='submit', name='submit', value='Submit').btn.btn-success
             
 
       
