@@ -25,7 +25,7 @@ html
 
 
 		nav.navbar.navbar-expand-md.navbar-dark.bg-dark
-			a.navbar-brand(href='/') KnowledgeBase
+			a.navbar-brand(href='/') Node-Express-Form
 			button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarsExampleDefault', aria-controls='navbarsExampleDefault', aria-expanded='false', aria-label='Toggle navigation')
 				span.navbar-toggler-icon
 			#navbarsExampleDefault.collapse.navbar-collapse
@@ -36,9 +36,15 @@ html
 							a.nav-link(href='/articles/add') AddArticle
 						li
 							a.nav-link(href='/contact') Contact
+				ul.nav.navbar-nav.navbar-right
+						li
+							a.nav-link(href='/users/register') Register
+						li
+							a.nav-link(href='/users/login') Login
 				//- form.form-inline.my-2.my-lg-0
 				//- 		input.form-control.mr-sm-2(type='text', placeholder='Search', aria-label='Search')
 				//- 		button.btn.btn-outline-success.my-2.my-sm-0(type='submit') Search	
+		.message
 		.container
 			!= messages('message', locals)
 			if errors

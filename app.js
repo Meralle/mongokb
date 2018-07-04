@@ -8,11 +8,13 @@ var nodeMailer = require('nodemailer');
 var expressValidator = require('express-validator');
 var flash = require ('connect-flash');
 var session = require('express-session');
+var passport = require('passport');
+var config = require('./config/database');
 
 
 
 //Connect with mongodb
-mongoose.connect('mongodb://localhost/nodekb');
+mongoose.connect(config.database);
 let db = mongoose.connection;
 
 //check connection
@@ -122,7 +124,18 @@ app.post('/send', (req, rea) => {
 	});
 });
 
-		
+//	Passport Config
+require('./config/passport')(passport);
+
+//Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
+
+
+
 
 //home router
 app.get('/', (req, res) => {
@@ -162,7 +175,9 @@ app.get('/', (req, res) => {
 
 //Route Files
 let articles = require('./routes/articles');
+let users = require('./routes/users');
 app.use('/articles', articles);
+app.use('/users', users);
 
 //start server
 app.listen(process.env.PORT, () => console.log('Example app listening on port 3000!'))

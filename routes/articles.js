@@ -4,6 +4,8 @@ var router = express.Router();
 //Bring in Article Module
 let Article = require('../models/article');
 
+//User Model
+let User = require('../models/user');
 
 //Add route
 router.get('/add', (req, res) => {
@@ -13,15 +15,16 @@ router.get('/add', (req, res) => {
 });
 
 //Add Submit Post Route
-router.post('/add', (req, res) => {
+router.post('/add', function(req, res){
 	// console.log('Submitted');
 	// return;
 	req.checkBody('title', 'Title is required').notEmpty();
-	req.checkBody('author', 'Author is required').notEmpty();
+	// req.checkBody('author', 'Author is required').notEmpty();
 	req.checkBody('body', 'body is required').notEmpty();
 
 	//Get Errors
 	let errors = req.validationErrors();
+
 	if(errors){
 		res.render('add_article', {
 			title:'Add Article',
@@ -31,11 +34,11 @@ router.post('/add', (req, res) => {
 	} else {
 		let article = new Article();
 		article.title = req.body.title;
-		article.author = req.body.author;
+		article.author = req.user._id;
 		article.body = req.body.body;
 		// console.log(req.body.title);
 		// return 
-		article.save(err => {
+		article.save(function(err){
 			if(err){
 				console.log(err);
 				return;
@@ -50,9 +53,13 @@ router.post('/add', (req, res) => {
 });
 
 //load Edit form
-router.get('/edit/:id', (req,res) => {
-	Article.findById(req.params.id,(err, article) => {
-		res.render('edit_article', {
+router.get('/edit/:id', function(req,res){
+	Article.findById(req.params.id, function(err, article){
+		if(article.author != req.user._id){
+      req.flash('danger', 'Not Authorized');
+      res.redirect('/');
+    }
+	res.render('edit_article', {
 		title: 'Edit Article',
 		article:article
 		});
@@ -61,7 +68,7 @@ router.get('/edit/:id', (req,res) => {
 
 
 //update Submit Post Route
-router.post('/edit/:id', (req, res) => {
+router.post('/edit/:id', function(req, res){
 	let article = {};
 	article.title = req.body.title;
 	article.author = req.body.author;
@@ -69,19 +76,19 @@ router.post('/edit/:id', (req, res) => {
 
 	let query = {_id:req.params.id}
 	
-	Article.update(query, article, (err) => {
+	Article.update(query, article, function(err){
 		if(err){
 			console.log(err);
 			return;
 		} else {
-			req.flash('success', 'Article Updated')
+			req.flash('success', 'Article Updated');
 			res.redirect('/');
 		}
 	});
 });
 
 //Delete Article
-router.delete('/:id', (req, res) => {
+router.delete('/:id', function(req, res){
 	let query = {_id:req.params.id}
 	Article.remove(query, (err) => {
 		if(err){
@@ -92,10 +99,13 @@ router.delete('/:id', (req, res) => {
 });
 
 //get single article
-router.get('/:id', (req,res) => {
-	Article.findById(req.params.id,(err, article) => {
+router.get('/:id', function(req,res){
+	Article.findById(req.params.id, function(err, article){
+		User.findById(article.author, function(err, user){
 		res.render('article', {
-		article:article
+			article:article,
+			author: user.name
+		});
 		});
 	});
 });
