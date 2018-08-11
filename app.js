@@ -1,183 +1,109 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var path = require('path');
-var mongoose = require('mongoose');
-var pug = require('pug');
-require('dotenv').config();
-var nodeMailer = require('nodemailer');
-var expressValidator = require('express-validator');
-var flash = require ('connect-flash');
-var session = require('express-session');
-var passport = require('passport');
-var config = require('./config/database');
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
+const flash = require('connect-flash');
+const session = require('express-session');
+const passport = require('passport');
+const config = require('./config/database');
 
-
-
-//Connect with mongodb
 mongoose.connect(config.database);
 let db = mongoose.connection;
 
-//check connection
-db.once('open', () => {
-	console.log('connected to MongoDB');
+// Check connection
+db.once('open', function(){
+  console.log('Connected to MongoDB');
 });
 
-//check for db errors
-db.on('error', (err) => {
-	console.log(err);
+// Check for DB errors
+db.on('error', function(err){
+  console.log(err);
 });
 
-//init app
-var app = express();
+// Init App
+const app = express();
 
-//Bring in Modules
+// Bring in Models
 let Article = require('./models/article');
 
-//load view engine
+// Load View Engine
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine','pug');
+app.set('view engine', 'pug');
 
-
-
-//Body parser middleware
+// Body Parser Middleware
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-
-//set public folder
+// Set Public Folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-//Express Section Middleware
+// Express Session Middleware
 app.use(session({
   secret: 'keyboard cat',
   resave: true,
   saveUninitialized: true
 }));
 
-
-//Express Messages Middleware
+// Express Messages Middleware
 app.use(require('connect-flash')());
 app.use(function (req, res, next) {
   res.locals.messages = require('express-messages')(req, res);
   next();
 });
 
-//Express Validator Middleware
+// Express Validator Middleware
 app.use(expressValidator({
-	errorFormatter: (param, msg, value) => {
-		var namespace = param.split('.')
-		, root  = namespace.shift()
-		, formParam = root;
+  errorFormatter: function(param, msg, value) {
+      var namespace = param.split('.')
+      , root    = namespace.shift()
+      , formParam = root;
 
-
-	while(namespace.length){
-		formParam += '[' + namespace.shift() + ']';
-	}
-
-	return {
-		param :formParam,
-		msg : msg,
-		value : value
-
-		};
-	}
+    while(namespace.length) {
+      formParam += '[' + namespace.shift() + ']';
+    }
+    return {
+      param : formParam,
+      msg   : msg,
+      value : value
+    };
+  }
 }));
 
-//contact send email part
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-var port = 3000;
-
-app.get('/contact', (req,res) => {
-	res.render('contact')
-});
-
-app.post('/send', (req, rea) => {
-	let transporter = nodeMailer.createTransport({
-		host: 'smtp.gmail.com',
-		post: 560,
-		secure: false,
-		auth: {
-			user:process.env.MAILER_MAIL,
-			pass: process.env.MAILER_PW
-		}
-	});
-
-	let mailOptions = {
-		from: '"meralle" <mar.ha17@outlook.com>',
-		name:req.body.name,
-		to: req.body.email,
-		subject:req.body.subject,
-		text:req.body.message
-	};
-
-	transporter.sendMail(mailOptions, (error, info) =>{
-		if (error) {
-			return console.log(error);
-		}
-		console.log('Message %s sent: %s , info.messageId, info.response');
-		res.render('index');
-	});
-});
-
-//	Passport Config
+// Passport Config
 require('./config/passport')(passport);
-
-//Passport Middleware
+// Passport Middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
-
-
-
-
-//home router
-app.get('/', (req, res) => {
-	// let articles = [
-	// 	{
-	// 		id:1,
-	// 		title:'Article one',
-	// 		author:'meralle',
-	// 		body:'this is article one'
-	// 	},
-	// 	{
-	// 		id:2,
-	// 		title:'Article Two',
-	// 		author:'Marta',
-	// 		body:'this is article two'
-	// 	},
-	// 	{
-	// 		id:3,
-	// 		title:'Article Three',
-	// 		author:'Tommy',
-	// 		body:'this is article three'
-	// 	},
-	// ]
-	Article.find({}, (err, articles) => {
-		if(err){
-			console.log(err);
-		} else {
-		res.render('index', {
-			title:'Articles',
-			articles:articles
-		});
-
-		}
-	});
-	
+app.get('*', function(req, res, next){
+  res.locals.user = req.user || null;
+  next();
 });
 
-//Route Files
+// Home Route
+app.get('/', function(req, res){
+  Article.find({}, function(err, articles){
+    if(err){
+      console.log(err);
+    } else {
+      res.render('index', {
+        title:'Articles',
+        articles: articles
+      });
+    }
+  });
+});
+
+// Route Files
 let articles = require('./routes/articles');
 let users = require('./routes/users');
 app.use('/articles', articles);
 app.use('/users', users);
 
-//start server
-app.listen(process.env.PORT, () => console.log('Example app listening on port 3000!'))
+// Start Server
+app.listen(3000, function(){
+  console.log('Server started on port 3000...');
+});
