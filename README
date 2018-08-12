@@ -1,7 +1,7 @@
 MongoDB README
 
-# Start node server
-`nodemon` or `node app.js`
+Start node server
+nodemon or node app.js
 
 Welcome to MongoDB!
 
